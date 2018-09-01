@@ -9,12 +9,18 @@ module Aqua
     (
       QReg (..)
     , QCirc (..)
+    , Aqua (..)
+    , apply, runCircuit
     , initQReg
-    , notGate, idGate, hGate, cnotGate
-    , pair, compose, apply
+    , notGate, idGate, hGate
+    , cnotGate, crotGate
+    , qft
+    , (⊗), compose
     ) where
 
 import Prelude hiding ((<>))
+
+import Control.Monad.State
 import Data.List (intercalate)
 import Data.Proxy
 import GHC.TypeNats
@@ -39,11 +45,19 @@ instance KnownNat n => Show (QReg n) where
 newtype QCirc (n :: Nat) = UnsafeMkQCirc { getCirc :: Matrix C }
     deriving (Eq, Show)
 
+type Aqua n = State (QCirc n) ()
+
+apply :: QCirc n -> Aqua n
+apply = modify . compose
+
+runCircuit :: forall n. KnownNat n => Aqua n -> QReg n -> QReg n
+runCircuit circ reg = UnsafeMkQReg $ getCirc (execState circ (idGate :: QCirc n)) #> getReg reg
+
 -- |Take 2 registers and append them together.
 combine :: QReg m -> QReg n -> QReg (m + n)
 combine reg1 reg2 = UnsafeMkQReg $ head . toColumns $ asColumn (getReg reg1) `kronecker` asColumn (getReg reg2)
 
--- |Default register state, all qbits initialized to |0>.
+-- |Default register state, all qubits initialized to |0>.
 initQReg :: forall n. KnownNat n => QReg n
 initQReg = UnsafeMkQReg $ (2^l) |> (1 : repeat 0)
     where l = natVal $ Proxy @n
@@ -61,7 +75,7 @@ idGate = UnsafeMkQCirc $ ident (2^l)
 hGate :: QCirc 1
 hGate = UnsafeMkQCirc $ (2><2) [1,1,1,-1] / sqrt 2
 
--- |CNot gate on 2 qubits
+-- |Controlled Not gate on 2 qubits
 cnotGate :: QCirc 2
 cnotGate = UnsafeMkQCirc $ (4><4)
                     [1,0,0,0,
@@ -69,16 +83,26 @@ cnotGate = UnsafeMkQCirc $ (4><4)
                      0,0,0,1,
                      0,0,1,0]
 
+-- |Controlled Rotation gate on 2 qubits
+crotGate :: R -> QCirc 2
+crotGate t = UnsafeMkQCirc $ (4><4)
+                    [1,0,0,0,
+                     0,1,0,0,
+                     0,0,1,0,
+                     0,0,0,cis t]
+
+qft :: forall n. KnownNat n => QCirc n
+qft = UnsafeMkQCirc $ assoc (2^l, 2^l) 0 [((i, j), omega ** fromIntegral (i * j)) | i <- [0..l], j <- [0..l]] / sqrt (2^l)
+        where l = fromIntegral $ natVal $ Proxy @n
+              omega = cis (2 * pi / 2^l)
+
 -- |If `circ1` is the circuit on the first `m` qubits, and
 -- `circ2` is the circuit on the last `n` qubits, then
 -- `pair circ1 circ2` is the circuit on the entire combined register.
-pair :: QCirc m -> QCirc n -> QCirc (m + n)
-pair circ1 circ2 = UnsafeMkQCirc $ getCirc circ1 `kronecker` getCirc circ2
+(⊗) :: QCirc m -> QCirc n -> QCirc (m + n)
+circ1 ⊗ circ2 = UnsafeMkQCirc $ getCirc circ1 `kronecker` getCirc circ2
 
 -- |Compose two circuits of the same size.
 compose :: QCirc n -> QCirc n -> QCirc n
 compose circ1 circ2 = UnsafeMkQCirc $ getCirc circ1 <> getCirc circ2
 
--- |Apply the circuit to the register.
-apply :: QCirc n -> QReg n -> QReg n
-apply circ reg = UnsafeMkQReg $ getCirc circ #> getReg reg

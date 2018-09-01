@@ -2,9 +2,14 @@
 
 import Aqua
 
+myCircuit :: Aqua 2
+myCircuit = do
+    apply (hGate ⊗ idGate)
+    apply cnotGate
+
+
 main :: IO ()
 main = do
-    let reg = initQReg :: QReg 2
-        circ = cnotGate `compose` (hGate `pair` idGate)
+    let initialReg = initQReg :: QReg 2
     putStrLn "Creating Bell state by cnot and hadamard gates..."
-    print $ apply circ reg
+    print $ runCircuit myCircuit initialReg
