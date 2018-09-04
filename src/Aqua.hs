@@ -47,9 +47,12 @@ newtype QCirc (n :: Nat) = UnsafeMkQCirc { getCirc :: Matrix C }
 
 type Aqua n = State (QCirc n) ()
 
+-- |Add a circuit/gate combination to your monadic computation.
 apply :: QCirc n -> Aqua n
 apply = modify . compose
+{-# INLINE apply #-}
 
+-- |Evaluate a monadic circuit computation on an initial register.
 runCircuit :: forall n. KnownNat n => Aqua n -> QReg n -> QReg n
 runCircuit circ reg = UnsafeMkQReg $ getCirc (execState circ (idGate :: QCirc n)) #> getReg reg
 
@@ -92,7 +95,7 @@ crotGate t = UnsafeMkQCirc $ (4><4)
                      0,0,0,cis t]
 
 qft :: forall n. KnownNat n => QCirc n
-qft = UnsafeMkQCirc $ assoc (2^l, 2^l) 0 [((i, j), omega ** fromIntegral (i * j)) | i <- [0..l], j <- [0..l]] / sqrt (2^l)
+qft = UnsafeMkQCirc $ assoc (2^l, 2^l) 0 [((i, j), omega ** fromIntegral (i * j)) | i <- [0..2^l-1], j <- [0..2^l-1]] / sqrt (2^l)
         where l = fromIntegral $ natVal $ Proxy @n
               omega = cis (2 * pi / 2^l)
 
