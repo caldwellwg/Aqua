@@ -1,13 +1,12 @@
-name:                Aqua
+name:                aqua
 version:             0.1.0.0
-github:              "githubuser/Aqua"
+github:              "caldwellwg/Aqua"
 license:             BSD3
-author:              "Author name here"
-maintainer:          "example@example.com"
-copyright:           "2018 Author name here"
+author:              "Wes Caldwell"
+maintainer:          "caldwellwg@gmail.com"
+copyright:           "2018 Wes Caldwell"
 
 extra-source-files:
-- README.md
 - ChangeLog.md
 
 # Metadata used when publishing your package
@@ -22,5 +21,13 @@ description:         Please see the README on GitHub at <https://github.com/gith
 dependencies:
 - base >= 4.10.0.0 && < 5
 - ghc-typelits-natnormalise
+
 library:
   source-dirs: src
+
+executables:
+  example:
+    main: Main.hs
+    source-dirs: ex
+    dependencies:
+      - aqua

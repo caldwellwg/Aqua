@@ -56,6 +56,13 @@ instance Ord (QBasis n) where
                                         then compare xs ys
                                         else compare a b
 
+unit' :: KnownNat n => QBasis n
+unit' = withSNat (unitU . toUNat)
+
+unitU :: UNat n -> QBasis n
+unitU UZero = Nil
+unitU (USucc u) = Cons False $ unitU u
+
 head' :: QBasis (n + 1) -> QBasis 1
 head' (Cons b _) = Cons b Nil
 
