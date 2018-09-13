@@ -1,10 +1,7 @@
-{-# LANGUAGE AllowAmbiguousTypes
-           , DataKinds
+{-# LANGUAGE DataKinds
            , GADTs
            , KindSignatures
-           , RankNTypes
            , ScopedTypeVariables
-           , TypeApplications
            , TypeOperators #-}
 module LiftedNats
     ( module LiftedNats
@@ -13,9 +10,11 @@ module LiftedNats
 import GHC.TypeLits
 import Unsafe.Coerce
 
+-- |Singleton type for type-level naturals
 data SNat (n :: Nat) where
     SNat :: KnownNat n => SNat n
 
+-- |Unary type for type-level naturals. Used for pattern matching
 data UNat :: Nat -> * where
     UZero :: UNat 0
     USucc :: UNat n -> UNat (n + 1)

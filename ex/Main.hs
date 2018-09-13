@@ -19,12 +19,17 @@ toffoliGate = idGate ⊗ hGate
           >>> cnotGate ⊗ idGate
           >>> rotGate (pi / 4) ⊗ rotGate (pi / 2) ⊗ idGate
 
-myCircuit :: QCirc 3
-myCircuit = hGate ⊗ idGate
+halfAdder :: QCirc 3
+halfAdder = toffoliGate
         >>> cnotGate ⊗ idGate
-        >>> idGate ⊗ cnotGate
 
 main :: IO ()
 main = do
-    putStrLn "Creating Bell state by cnot and hadamard gates..."
-    print $ runCircuit toffoliGate
+    let a = False
+        b = True
+    putStrLn "Adding a and b, bit 2 is sum and bit 3 is carry"
+    print $ runCircuit $
+        (if a then notGate else idGate)
+            ⊗ (if b then notGate else idGate)
+            ⊗ idGate
+        >>> halfAdder

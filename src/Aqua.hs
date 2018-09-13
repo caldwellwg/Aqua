@@ -1,6 +1,5 @@
 {-# LANGUAGE DataKinds
            , GADTs
-           , KindSignatures
            , TypeOperators #-}
 module Aqua
     (
@@ -33,13 +32,13 @@ idGate :: QCirc n
 idGate = id
 
 notGate :: QCirc 1
-notGate = \vec -> linear n vec
+notGate = linear n
     where n :: QBasis 1 -> QReg 1
           n (Cons False Nil) = V [(Cons True Nil, 1)]
           n (Cons True Nil) = V [(Cons False Nil, 1)]
 
 hGate :: QCirc 1
-hGate = \vec -> linear h vec
+hGate = linear h
     where h :: QBasis 1 -> QReg 1
           h (Cons False Nil) = V [(Cons False Nil, 1 / sqrt 2)
                                  ,(Cons True Nil, 1 / sqrt 2)]
@@ -47,13 +46,13 @@ hGate = \vec -> linear h vec
                                 ,(Cons True Nil, -1 / sqrt 2)]
 
 rotGate :: Double -> QCirc 1
-rotGate t = \vec -> linear r vec
+rotGate t = linear r
     where r :: QBasis 1 -> QReg 1
           r (Cons False Nil) = V [(Cons False Nil, 1)]
           r (Cons True Nil) = V [(Cons True Nil, cis t)]
 
 cnotGate :: QCirc 2
-cnotGate = \vec -> linear n vec
+cnotGate = linear n
     where n :: QBasis 2 -> QReg 2
           n (Cons False (Cons False Nil)) = V [(Cons False (Cons False Nil), 1)]
           n (Cons False (Cons True Nil)) = V [(Cons False (Cons True Nil), 1)]
@@ -61,7 +60,7 @@ cnotGate = \vec -> linear n vec
           n (Cons True (Cons True Nil)) = V [(Cons True (Cons False Nil), 1)]
 
 swapGate :: QCirc 2
-swapGate = \vec -> linear s vec
+swapGate = linear s
     where s :: QBasis 2 -> QReg 2
           s (Cons False (Cons False Nil)) = V [(Cons False (Cons False Nil), 1)]
           s (Cons False (Cons True Nil)) = V [(Cons True (Cons False Nil), 1)]

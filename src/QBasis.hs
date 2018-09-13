@@ -1,10 +1,7 @@
-{-# LANGUAGE AllowAmbiguousTypes
-           , DataKinds
+{-# LANGUAGE DataKinds
            , GADTs
            , KindSignatures
-           , RankNTypes
            , ScopedTypeVariables
-           , TypeApplications
            , TypeOperators #-}
 {-# OPTIONS_GHC -fplugin GHC.TypeLits.Normalise #-}
 module QBasis
@@ -31,9 +28,7 @@ instance Eq (QBasis n) where
     Nil == Nil = True
     (Cons _ _) == Nil = False
     Nil == (Cons _ _) = False
-    (Cons a xs) == (Cons b ys) = if a == b
-                                    then True
-                                    else xs == ys
+    (Cons a xs) == (Cons b ys) = (a == b) || (xs == ys)
 
 instance Ord (QBasis n) where
     compare Nil Nil = EQ
@@ -65,7 +60,7 @@ tb Nil y = y
 tb (Cons b x) y = Cons b $ tb x y
 
 splitAt' :: SNat m -> QBasis (m + n) -> (QBasis m, QBasis n)
-splitAt' n xs = splitAtU (toUNat n) xs
+splitAt' n = splitAtU (toUNat n)
 
 splitAtU :: UNat m -> QBasis (m + n) -> (QBasis m, QBasis n)
 splitAtU UZero ys = (Nil, ys)
