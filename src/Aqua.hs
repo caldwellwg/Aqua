@@ -41,10 +41,16 @@ notGate = \vec -> linear n vec
 hGate :: QCirc 1
 hGate = \vec -> linear h vec
     where h :: QBasis 1 -> QReg 1
-          h (Cons False Nil) = V [(Cons False Nil, (1 :+ 0) / sqrt 2)
-                                 ,(Cons True Nil, (1 :+ 0) / sqrt 2)]
-          h (Cons True Nil) = V [(Cons False Nil, (1 :+ 0) / sqrt 2)
-                                ,(Cons True Nil, -(1 :+ 0) / sqrt 2)]
+          h (Cons False Nil) = V [(Cons False Nil, 1 / sqrt 2)
+                                 ,(Cons True Nil, 1 / sqrt 2)]
+          h (Cons True Nil) = V [(Cons False Nil, 1 / sqrt 2)
+                                ,(Cons True Nil, -1 / sqrt 2)]
+
+rotGate :: Double -> QCirc 1
+rotGate t = \vec -> linear r vec
+    where r :: QBasis 1 -> QReg 1
+          r (Cons False Nil) = V [(Cons False Nil, 1)]
+          r (Cons True Nil) = V [(Cons True Nil, cis t)]
 
 cnotGate :: QCirc 2
 cnotGate = \vec -> linear n vec
@@ -53,3 +59,11 @@ cnotGate = \vec -> linear n vec
           n (Cons False (Cons True Nil)) = V [(Cons False (Cons True Nil), 1)]
           n (Cons True (Cons False Nil)) = V [(Cons True (Cons True Nil), 1)]
           n (Cons True (Cons True Nil)) = V [(Cons True (Cons False Nil), 1)]
+
+swapGate :: QCirc 2
+swapGate = \vec -> linear s vec
+    where s :: QBasis 2 -> QReg 2
+          s (Cons False (Cons False Nil)) = V [(Cons False (Cons False Nil), 1)]
+          s (Cons False (Cons True Nil)) = V [(Cons True (Cons False Nil), 1)]
+          s (Cons True (Cons False Nil)) = V [(Cons False (Cons True Nil), 1)]
+          s (Cons True (Cons True Nil)) = V [(Cons True (Cons True Nil), 1)]
